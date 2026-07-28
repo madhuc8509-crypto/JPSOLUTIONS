@@ -853,7 +853,7 @@
                 <p class="tagline">Professional Solutions</p>
             </div>
             
-            <button class="hamburger" id="hamburger">
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -1084,8 +1084,8 @@
                 <div class="info-box">
                     <div class="info-icon">📧</div>
                     <h3>Email</h3>
-                    <p><a href="purkaitjagannath61@gmail.com">purkaitjagannath61@gmail.com</a></p>
-                    <p><a href="purkaitjagannath61@gmail.com">purkaitjagannath61@gmail.com</a></p>
+                    <p><a href="mailto:purkaitjagannath61@gmail.com">purkaitjagannath61@gmail.com</a></p>
+                    <p><a href="mailto:purkaitjagannath61@gmail.com">purkaitjagannath61@gmail.com</a></p>
                 </div>
 
                 <div class="info-box">
@@ -1105,28 +1105,28 @@
 
             <form class="contact-form" id="contactForm">
                 <div class="form-group">
-                    <input type="text" placeholder="Your Name" required>
+                    <input type="text" name="name" placeholder="Your Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" placeholder="Your Email" required>
+                    <input type="email" name="email" placeholder="Your Email" required>
                 </div>
                 <div class="form-group">
-                    <input type="tel" placeholder="Your Phone Number" required>
+                    <input type="tel" name="phone" placeholder="Your Phone Number" required>
                 </div>
                 <div class="form-group">
-                    <select required>
+                    <select name="service" required>
                         <option value="">Select Service Type</option>
-                        <option value="bose">BOSE DSP Programming</option>
-                        <option value="atlas">ATLAS DSP Configuration</option>
-                        <option value="kramer">Kramer AV Setup</option>
-                        <option value="cctv">CCTV Installation</option>
-                        <option value="network">Network Setup</option>
-                        <option value="electrical">Electrical Work</option>
-                        <option value="other">Other</option>
+                        <option value="BOSE DSP Programming">BOSE DSP Programming</option>
+                        <option value="ATLAS DSP Configuration">ATLAS DSP Configuration</option>
+                        <option value="Kramer AV Setup">Kramer AV Setup</option>
+                        <option value="CCTV Installation">CCTV Installation</option>
+                        <option value="Network Setup">Network Setup</option>
+                        <option value="Electrical Work">Electrical Work</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <textarea placeholder="Your Message" rows="5" required></textarea>
+                    <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary">Send Message</button>
             </form>
@@ -1171,7 +1171,7 @@
         <div class="footer-section">
             <h4>Contact Info</h4>
             <p>📞 <a href="tel:+918509513318">+91 85095 13318</a></p>
-            <p>📧 <a href="purkaitjagannath61@gmail.com">purkaitjagannath61@gmail.com</a></p>
+            <p>📧 <a href="mailto:purkaitjagannath61@gmail.com">purkaitjagannath61@gmail.com</a></p>
             <p>📍 Bangalore, Karnataka</p>
         </div>
     </div>
@@ -1182,12 +1182,12 @@
 </footer>
 
 <!-- WhatsApp Button -->
-<a href="https://wa.me/918509513318?text=Hello%20JPSOLUTIONS,%20I%20need%20your%20services" class="whatsapp-btn" title="Chat with us on WhatsApp">
+<a href="https://wa.me/918509513318?text=Hello%20JPSOLUTIONS,%20I%20need%20your%20services" class="whatsapp-btn" title="Chat with us on WhatsApp" aria-label="WhatsApp">
     <i class="fab fa-whatsapp"></i>
 </a>
 
 <!-- Scroll to Top Button -->
-<button class="scroll-to-top" id="scrollToTop">
+<button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
     <i class="fas fa-arrow-up"></i>
 </button>
 
@@ -1232,7 +1232,7 @@
     });
 
     // ============================================
-    // FORM VALIDATION & SUBMISSION
+    // FORM VALIDATION & SUBMISSION (WhatsApp prefill)
     // ============================================
 
     const contactForm = document.getElementById('contactForm');
@@ -1242,14 +1242,15 @@
             e.preventDefault();
 
             // Get form values
-            const name = this.querySelector('input[type="text"]').value.trim();
-            const email = this.querySelector('input[type="email"]').value.trim();
-            const phone = this.querySelector('input[type="tel"]').value.trim();
-            const service = this.querySelector('select').value;
-            const message = this.querySelector('textarea').value.trim();
+            const name = this.querySelector('input[name="name"]').value.trim();
+            const email = this.querySelector('input[name="email"]').value.trim();
+            const phoneRaw = this.querySelector('input[name="phone"]').value.trim();
+            const phoneDigits = phoneRaw.replace(/\D/g, '');
+            const service = this.querySelector('select[name="service"]').value;
+            const message = this.querySelector('textarea[name="message"]').value.trim();
 
             // Basic validation
-            if (!name || !email || !phone || !service || !message) {
+            if (!name || !email || !phoneDigits || !service || !message) {
                 alert('Please fill in all fields');
                 return;
             }
@@ -1261,28 +1262,45 @@
                 return;
             }
 
-            // Phone validation (basic)
-            const phoneRegex = /^[0-9]{10}$/;
-            if (!phoneRegex.test(phone.replace(/\D/g, ''))) {
-                alert('Please enter a valid 10-digit phone number');
+            // Phone validation (basic: at least 10 digits)
+            if (phoneDigits.length < 10) {
+                alert('Please enter a valid phone number with at least 10 digits');
                 return;
             }
 
-            // If validation passes, show success message
-            alert('Thank you! We will contact you soon.');
-            
-            // Reset form
-            this.reset();
+            // Build message for WhatsApp
+            const lines = [
+                'New booking request from website:',
+                `Name: ${name}`,
+                `Email: ${email}`,
+                `Phone: ${phoneDigits}`,
+                `Service: ${service}`,
+                `Message: ${message}`
+            ];
+            const waText = encodeURIComponent(lines.join('\n'));
 
-            // In a real application, you would send this data to a server
+            // Replace with your phone number (country code + number, no + or 00)
+            const businessNumber = '918509513318';
+            const waUrl = `https://wa.me/${businessNumber}?text=${waText}`;
+
+            // Open WhatsApp (or wa.me web)
+            window.open(waUrl, '_blank');
+
+            // Feedback to user
+            alert('WhatsApp will open so you can send the booking message. If it did not open, please message us at +91 85095 13318');
+
+            // Log the submission (for debugging)
             console.log({
-                name: name,
-                email: email,
-                phone: phone,
-                service: service,
-                message: message,
+                name,
+                email,
+                phone: phoneDigits,
+                service,
+                message,
                 timestamp: new Date().toISOString()
             });
+
+            // Reset form
+            this.reset();
         });
     }
 
@@ -1414,6 +1432,55 @@
     console.log('%c🎯 Welcome to JPSOLUTIONS', 'font-size: 20px; color: #0056b3; font-weight: bold;');
     console.log('%cProfessional AV, CCTV & Network Solutions', 'font-size: 14px; color: #ff9800;');
     console.log('%cContact us: +91 85095 13318 | +91 78669 74418 | purkaitjagannath61@gmail.com', 'font-size: 12px; color: #333;');
+
+    // ============================================
+    // OPTIONAL: EmailJS (browser -> email) example
+    // ============================================
+    /*
+    If you prefer EmailJS (send email from browser without server):
+    1) Sign up at https://www.emailjs.com/
+    2) Add your email service and create a template with variables:
+       customer_name, customer_email, customer_phone, service_type, customer_message, timestamp
+    3) Replace 'YOUR_EMAILJS_USER_ID', 'YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID' below and uncomment.
+
+    <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+    (Add the script import to the top of the page or load dynamically)
+
+    // Example:
+    emailjs.init("YOUR_EMAILJS_USER_ID");
+    emailjs.send('YOUR_SERVICE_ID','YOUR_TEMPLATE_ID', {
+      customer_name: name,
+      customer_email: email,
+      customer_phone: phoneDigits,
+      service_type: service,
+      customer_message: message,
+      timestamp: new Date().toLocaleString()
+    })
+    .then(() => { alert('Sent'); })
+    .catch(err => { console.error(err); alert('Error sending'); });
+    */
+
+    // ============================================
+    // OPTIONAL: Twilio (server-side SMS) notes
+    // ============================================
+    /*
+    For automatic SMS to your phone using Twilio:
+    - Do NOT put Twilio credentials into browser code.
+    - Create a serverless function (Netlify, Vercel, Firebase) or small server with a POST /send-sms endpoint.
+    - The server should use Twilio SDK with ACCOUNT_SID/AUTH_TOKEN and send message:
+        client.messages.create({ body, from: TWILIO_NUMBER, to: NOTIFY_NUMBER })
+    - From browser, POST form data to that endpoint and show success/failure to user.
+
+    Example serverless handler (Node):
+    const twilio = require('twilio');
+    const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    module.exports = async (req, res) => {
+      const { name, phone, service, message } = req.body;
+      await client.messages.create({ body: `New booking from ${name} (${phone}) Service: ${service}`, from: process.env.TWILIO_FROM, to: process.env.NOTIFY_TO });
+      res.json({ ok: true });
+    };
+    */
+
 </script>
 
 </body>
